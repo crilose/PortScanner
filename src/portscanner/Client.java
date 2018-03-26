@@ -8,6 +8,7 @@ package portscanner;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -43,19 +44,21 @@ public class Client {
     String[] servizi = {"HTTP","SMTP","FTP","SSH","Telnet","DNS","Kerberos","LDAP","IRC"};
     int [] defPorts = {80,25,20,22,23,53,88,636,6667};
     DatagramSocket clientSocket;
-    PrintWriter writer;
+    FileWriter writer;
     
     
     
     public Client(String ip, int port)
     {
         try {
-            this.writer = new PrintWriter("logfile.txt", "UTF-8");
+            this.writer = new FileWriter("logfile.txt",true);
             this.serverAddress = ip;
             this.port = port;
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -63,12 +66,14 @@ public class Client {
     public Client()
     {
         try {
-            this.writer = new PrintWriter("logfile.txt", "UTF-8");
+            this.writer = new FileWriter("logfile.txt",true);
             this.serverAddress = "";
             this.port = 0;
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -93,19 +98,32 @@ public class Client {
 
         }
         catch(ConnectException e){
-            System.err.println("Server non disponibile o porta " + port + " TCP chiusa!");
-            writer.append("Server non disponibile o porta " + port + " TCP chiusa!" + "\r\n");
+            try {
+                System.err.println("Server non disponibile o porta " + port + " TCP chiusa!");
+                writer.append("Server non disponibile o porta " + port + " TCP chiusa!" + "\r\n");
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         catch(UnknownHostException e1){
-            System.err.println("Errore DNS!");
-            writer.append("Errore DNS!" + "\r\n");
+            try {
+                System.err.println("Errore DNS!");
+                writer.append("Errore DNS!" + "\r\n");
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
             
         }
         
          catch(SocketTimeoutException exc) //Se non riceve risposta + chiusa
         {
-            System.out.println("Server non disponibile o porta " + port + " TCP chiusa!");
-            writer.append("Server non disponibile o porta " + port + " TCP chiusa!" + "\r\n");
+            try //Se non riceve risposta + chiusa
+            {
+                System.out.println("Server non disponibile o porta " + port + " TCP chiusa!");
+                writer.append("Server non disponibile o porta " + port + " TCP chiusa!" + "\r\n");
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         catch (IOException ex) {
@@ -138,23 +156,41 @@ public class Client {
             writer.append("UDP per indirizzo" + ip + ", porta: " + port + ", Servizio: " + servizio + " probabilmente aperto" + "\r\n");
         }
         catch(ConnectException e){
-            System.err.println("Server non disponibile o porta " + port + " UDP chiusa!");
-            writer.append("Server non disponibile o porta " + port + " UDP chiusa!" + "\r\n");
+            try {
+                System.err.println("Server non disponibile o porta " + port + " UDP chiusa!");
+                writer.append("Server non disponibile o porta " + port + " UDP chiusa!" + "\r\n");
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         catch(UnknownHostException e1){
-            System.err.println("Errore DNS!");
-            writer.append("Errore DNS!" + "\r\n");
+            try {
+                System.err.println("Errore DNS!");
+                writer.append("Errore DNS!" + "\r\n");
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
             
         }
         catch(PortUnreachableException ex) //se riceve questo errore la porta è chiusa
         {
-            System.err.println("Server non disponibile o porta " + port + " UDP chiusa!");
-            writer.append("Server non disponibile o porta " + port + " UDP chiusa!" + "\r\n");
+            try //se riceve questo errore la porta è chiusa
+            {
+                System.err.println("Server non disponibile o porta " + port + " UDP chiusa!");
+                writer.append("Server non disponibile o porta " + port + " UDP chiusa!" + "\r\n");
+            } catch (IOException ex1) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex1);
+            }
         }
         catch(SocketTimeoutException exc) //Se non riceve risposta è possibile che sia aperta comunque
         {
-            System.out.println(ANSI_GREEN + "Pacchetto UDP per indirizzo " + ip + ", porta: " + port + ", Servizio: " + servizio + " arrivato ma senza risposta" + ANSI_RESET);
-            writer.append("Pacchetto UDP per indirizzo " + ip + ", porta: " + port + ", Servizio: " + servizio + " arrivato ma senza risposta" + "\r\n");
+            try //Se non riceve risposta è possibile che sia aperta comunque
+            {
+                System.out.println(ANSI_GREEN + "Pacchetto UDP per indirizzo " + ip + ", porta: " + port + ", Servizio: " + servizio + " arrivato ma senza risposta" + ANSI_RESET);
+                writer.append("Pacchetto UDP per indirizzo " + ip + ", porta: " + port + ", Servizio: " + servizio + " arrivato ma senza risposta" + "\r\n");
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         
@@ -166,7 +202,7 @@ public class Client {
     public void customPort()
     {
         try {
-            writer = new PrintWriter("logfile.txt", "UTF-8");
+            writer = new FileWriter("logfile.txt",true);
             System.out.println("Inserisci indirizzo ip: ");
             String ip = input.nextLine();
             System.out.println("Inserisci porta: ");
@@ -180,6 +216,8 @@ public class Client {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -187,7 +225,7 @@ public class Client {
     public void defaultPorts()
     {
         try {
-            writer = new PrintWriter("logfile.txt", "UTF-8");
+            writer = new FileWriter("logfile.txt", true);
             System.out.println("Inserisci indirizzo ip: ");
             String ip = input.nextLine();
             for(int i=0;i<servizi.length;i++)
@@ -202,6 +240,8 @@ public class Client {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
         
